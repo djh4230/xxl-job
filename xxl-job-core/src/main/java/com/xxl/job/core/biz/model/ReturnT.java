@@ -12,8 +12,10 @@ public class ReturnT<T> implements Serializable {
 
 	public static final int SUCCESS_CODE = 200;
 	public static final int FAIL_CODE = 500;
+	public static final int WAIT_CODE = 300;
 	public static final ReturnT<String> SUCCESS = new ReturnT<String>(null);
 	public static final ReturnT<String> FAIL = new ReturnT<String>(FAIL_CODE, null);
+	public static final ReturnT<String> WAIT = new ReturnT<String>(WAIT_CODE, "waiting for parent job");
 	
 	private int code;
 	private String msg;

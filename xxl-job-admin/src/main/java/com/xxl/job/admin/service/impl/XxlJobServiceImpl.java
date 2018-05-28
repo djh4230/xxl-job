@@ -3,8 +3,10 @@ package com.xxl.job.admin.service.impl;
 import com.xxl.job.admin.core.enums.ExecutorFailStrategyEnum;
 import com.xxl.job.admin.core.model.XxlJobGroup;
 import com.xxl.job.admin.core.model.XxlJobInfo;
+import com.xxl.job.admin.core.model.XxlJobLog;
 import com.xxl.job.admin.core.route.ExecutorRouteStrategyEnum;
 import com.xxl.job.admin.core.schedule.XxlJobDynamicScheduler;
+import com.xxl.job.admin.core.thread.JobWaitMonitorHelper;
 import com.xxl.job.admin.core.util.I18nUtil;
 import com.xxl.job.admin.dao.XxlJobGroupDao;
 import com.xxl.job.admin.dao.XxlJobInfoDao;
@@ -14,6 +16,7 @@ import com.xxl.job.admin.service.XxlJobService;
 import com.xxl.job.core.biz.model.ReturnT;
 import com.xxl.job.core.enums.ExecutorBlockStrategyEnum;
 import com.xxl.job.core.glue.GlueTypeEnum;
+import com.xxl.job.core.handler.IJobHandler;
 import org.apache.commons.collections4.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.time.DateUtils;
@@ -278,6 +281,23 @@ public class XxlJobServiceImpl implements XxlJobService {
         if (xxlJobInfo == null) {
         	return new ReturnT<String>(ReturnT.FAIL_CODE, (I18nUtil.getString("jobinfo_field_id")+I18nUtil.getString("system_unvalid")) );
 		}
+
+		/**
+		 * 判断父任务是否执行成功
+		 */
+		String parentjobs=xxlJobInfo.getChildJobId();
+		if(!parentjobs.equals("")){
+		String[] jobIds=parentjobs.split(",");
+		for(String jobId:jobIds){
+			XxlJobLog xxlJobLog=xxlJobLogDao.loadByJobId(Integer.valueOf(jobId));
+			if(IJobHandler.SUCCESS.getCode()==xxlJobLog.getHandleCode()){
+				continue;
+			}else{
+                JobWaitMonitorHelper.getInstance().put(xxlJobInfo);
+				return ReturnT.WAIT;
+			}
+		}
+        }
 
         String group = String.valueOf(xxlJobInfo.getJobGroup());
         String name = String.valueOf(xxlJobInfo.getId());

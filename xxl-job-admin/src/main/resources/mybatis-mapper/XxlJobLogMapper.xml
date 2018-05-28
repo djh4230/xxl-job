@@ -113,6 +113,14 @@
 		WHERE t.id = #{id}
 	</select>
 
+	<select id="loadByJobId" parameterType="java.lang.Integer" resultMap="XxlJobLog">
+		SELECT <include refid="Base_Column_List" />
+		FROM XXL_JOB_QRTZ_TRIGGER_LOG AS t
+		WHERE t.job_id = #{id}
+		ORDER BY t.handle_time DESC
+		LIMIT 1
+	</select>
+
 	
 	<insert id="save" parameterType="com.xxl.job.admin.core.model.XxlJobLog" useGeneratedKeys="true" keyProperty="id" >
 		INSERT INTO XXL_JOB_QRTZ_TRIGGER_LOG (

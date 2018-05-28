@@ -4,6 +4,7 @@ import com.xxl.job.admin.core.jobbean.RemoteHttpJobBean;
 import com.xxl.job.admin.core.model.XxlJobInfo;
 import com.xxl.job.admin.core.thread.JobFailMonitorHelper;
 import com.xxl.job.admin.core.thread.JobRegistryMonitorHelper;
+import com.xxl.job.admin.core.thread.JobWaitMonitorHelper;
 import com.xxl.job.admin.core.util.I18nUtil;
 import com.xxl.job.admin.dao.XxlJobGroupDao;
 import com.xxl.job.admin.dao.XxlJobInfoDao;
@@ -74,6 +75,8 @@ public final class XxlJobDynamicScheduler implements ApplicationContextAware {
         // admin monitor run
         JobFailMonitorHelper.getInstance().start();
 
+        //wait for parent jobs
+        JobWaitMonitorHelper.getInstance().start();
         // admin-server(spring-mvc)
         NetComServerFactory.putService(AdminBiz.class, XxlJobDynamicScheduler.adminBiz);
         NetComServerFactory.setAccessToken(accessToken);
